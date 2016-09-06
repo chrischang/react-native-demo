@@ -1,6 +1,6 @@
 import formatTime from 'minutes-seconds-milliseconds'
 import React, {Component} from 'react'
-import { View, Text, AppRegistry, StyleSheet, TouchableHighlight } from 'react-native'
+import { View, Text, AppRegistry, StyleSheet, TouchableHighlight, ScrollView } from 'react-native'
 
 class StopWatch extends Component {
 	constructor(props) {
@@ -8,7 +8,8 @@ class StopWatch extends Component {
 		this.state = {
 			timeElapsed: null,
 			running: false,
-			startTime: null
+			startTime: null,
+			laps: []
 		}
 	}
 	render() {
@@ -25,17 +26,14 @@ class StopWatch extends Component {
 						{this.lapButton()}
 					</View>
 				</View>
-				<View style={[style.footer, this.border('blue')]}>
-					<Text>
-						I am a list of Laps
-					</Text>
-				</View>
+				<ScrollView style={[style.footer, this.border('blue')]}>
+						{this.lapHelper()}
+				</ScrollView>
 			</View>
 		)
 	}
 	startStopButton() {
 		var styles = this.state.running ? style.stopButton : style.startButton;
-
 		return <TouchableHighlight 
 		underlayColor="gray"
 		onPress={this.handleStartPress.bind(this)}
@@ -82,11 +80,23 @@ class StopWatch extends Component {
 
 		if (this.state.running) {
 			this.setState({
-				startTime: new Date()
+				startTime: new Date(),
+				laps: this.state.laps.concat([lap])
 			})
-			console.log(formatTime(lap));
 			return
 		}
+	}
+	lapHelper() {
+		return this.state.laps.map((lap,idx) => {
+			return <View key={idx} style={[style.lap, this.border('green')]}>
+				<Text style={style.lapText}>
+					Lap #{idx + 1}
+				</Text>
+				<Text style={style.lapText}>
+					{formatTime(lap)}
+				</Text>
+			</View>
+		})
 	}
 }
 
@@ -132,6 +142,13 @@ var style = StyleSheet.create({
 	},
 	lapButton: {
 		borderColor: '#FFF'
+	},
+	lap: {
+		justifyContent: 'space-around',
+		flexDirection: 'row'
+	},
+	lapText: {
+		fontSize: 30
 	}
 })
 
